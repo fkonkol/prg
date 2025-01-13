@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <iostream>
+#include <map>
 #include <stdexcept>
 
 struct Vec2
@@ -7,6 +8,7 @@ struct Vec2
     int x, y;
 
     Vec2() : x(0), y(0) {}
+    Vec2(int x, int y) : x(x), y(y) {}
 };
 
 class Shape
@@ -32,48 +34,30 @@ public:
 
     void ScaleUp()
     {
-        if (m_Size < Size::Large)
+        Size newSize = static_cast<Size>(static_cast<int>(m_Size) + 1);
+        if (m_Size < Size::Large && canScale(newSize))
         {
-            m_Size = static_cast<Size>(static_cast<int>(m_Size) + 1);
+            m_Size = newSize;
         }
     }
 
     void ScaleDown()
     {
-        if (m_Size > Size::Small)
+        Size newSize = static_cast<Size>(static_cast<int>(m_Size) - 1);
+        if (m_Size > Size::Small && canScale(newSize))
         {
-            m_Size = static_cast<Size>(static_cast<int>(m_Size) - 1);
+            m_Size = newSize;
         }
     }
 
     int GetWidth()
     {
-        switch (m_Size)
-        {
-        case Size::Small:
-            return 18;
-        case Size::Medium:
-            return 27;
-        case Size::Large:
-            return 41;
-        default:
-            return -1;
-        }
+        return m_Sizes.at(m_Size).x;
     }
 
     int GetHeight()
     {
-        switch (m_Size)
-        {
-        case Size::Small:
-            return 7;
-        case Size::Medium:
-            return 9;
-        case Size::Large:
-            return 11;
-        default:
-            return -1;
-        }
+        return m_Sizes.at(m_Size).y;
     }
 
     void Draw()
@@ -144,6 +128,12 @@ private:
     Vec2 m_Position;
     char m_Character;
 
+    std::map<Size, Vec2> m_Sizes{
+        { Size::Small, { 18, 7 } },
+        { Size::Medium, { 27, 9 } },
+        { Size::Large, { 41, 11 } },
+    };
+
     void drawOuterLine(int x, int y, int length)
     {
         std::string line(length, m_Character);
@@ -155,6 +145,17 @@ private:
         std::string space(length * depth, ' ');
         mvprintw(y, x, space.c_str());
         drawOuterLine(x + space.length(), y, length);
+    }
+
+    bool canScale(Size size)
+    {
+        Vec2 bounds;
+        getmaxyx(stdscr, bounds.y, bounds.x);
+
+        Vec2 scaledDimensions = m_Sizes.at(size);
+
+        return (m_Position.x + scaledDimensions.x <= bounds.x) &&
+               (m_Position.y + scaledDimensions.y <= bounds.y);
     }
 };
 
