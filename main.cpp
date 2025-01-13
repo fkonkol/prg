@@ -1,4 +1,6 @@
 #include <ncurses.h>
+#include <iostream>
+#include <stdexcept>
 
 struct Vec2
 {
@@ -14,6 +16,14 @@ public:
     {
         Small, Medium, Large,
     };
+
+    static Size SizeFromString(const std::string& size)
+    {
+        if (size == "small") return Size::Small;
+        if (size == "medium") return Size::Medium;
+        if (size == "large") return Size::Large;
+        throw std::invalid_argument("Invalid size: " + size);
+    }
 
     Size GetSize()
     {
@@ -41,37 +51,37 @@ public:
         switch (m_Size)
         {
         case Size::Small:
-            mvprintw(m_Position.y, m_Position.x, "##################");
-            mvprintw(m_Position.y + 1, m_Position.x, "##");
-            mvprintw(m_Position.y + 2, m_Position.x, "  ##");
-            mvprintw(m_Position.y + 3, m_Position.x, "    ##");
-            mvprintw(m_Position.y + 4, m_Position.x, "  ##");
-            mvprintw(m_Position.y + 5, m_Position.x, "##");
-            mvprintw(m_Position.y + 6, m_Position.x, "##################");
+            drawOuterLine(m_Position.x, m_Position.y, 18);
+            drawInnerLine(m_Position.x, m_Position.y + 1, 0, 2);
+            drawInnerLine(m_Position.x, m_Position.y + 2, 1, 2);
+            drawInnerLine(m_Position.x, m_Position.y + 3, 2, 2);
+            drawInnerLine(m_Position.x, m_Position.y + 4, 1, 2);
+            drawInnerLine(m_Position.x, m_Position.y + 5, 0, 2);
+            drawOuterLine(m_Position.x, m_Position.y + 6, 18);
             break;
         case Size::Medium:
-            mvprintw(m_Position.y, m_Position.x, "###########################");
-            mvprintw(m_Position.y + 1, m_Position.x, "###");
-            mvprintw(m_Position.y + 2, m_Position.x, "   ###");
-            mvprintw(m_Position.y + 3, m_Position.x, "      ###");
-            mvprintw(m_Position.y + 4, m_Position.x, "         ###");
-            mvprintw(m_Position.y + 5, m_Position.x, "      ###");
-            mvprintw(m_Position.y + 6, m_Position.x, "   ###");
-            mvprintw(m_Position.y + 7, m_Position.x, "###");
-            mvprintw(m_Position.y + 8, m_Position.x, "###########################");
+            drawOuterLine(m_Position.x, m_Position.y, 27);
+            drawInnerLine(m_Position.x, m_Position.y + 1, 0, 3);
+            drawInnerLine(m_Position.x, m_Position.y + 2, 1, 3);
+            drawInnerLine(m_Position.x, m_Position.y + 3, 2, 3);
+            drawInnerLine(m_Position.x, m_Position.y + 4, 3, 3);
+            drawInnerLine(m_Position.x, m_Position.y + 5, 2, 3);
+            drawInnerLine(m_Position.x, m_Position.y + 6, 1, 3);
+            drawInnerLine(m_Position.x, m_Position.y + 7, 0, 3);
+            drawOuterLine(m_Position.x, m_Position.y + 8, 27);
             break;
         case Size::Large:
-            mvprintw(m_Position.y, m_Position.x, "#########################################");
-            mvprintw(m_Position.y + 1, m_Position.x, "####");
-            mvprintw(m_Position.y + 2, m_Position.x, "    ####");
-            mvprintw(m_Position.y + 3, m_Position.x, "        ####");
-            mvprintw(m_Position.y + 4, m_Position.x, "            ####");
-            mvprintw(m_Position.y + 5, m_Position.x, "                ####");
-            mvprintw(m_Position.y + 6, m_Position.x, "            ####");
-            mvprintw(m_Position.y + 7, m_Position.x, "        ####");
-            mvprintw(m_Position.y + 8, m_Position.x, "    ####");
-            mvprintw(m_Position.y + 9, m_Position.x, "####");
-            mvprintw(m_Position.y + 10, m_Position.x, "#########################################");
+            drawOuterLine(m_Position.x, m_Position.y, 41);
+            drawInnerLine(m_Position.x, m_Position.y + 1, 0, 4);
+            drawInnerLine(m_Position.x, m_Position.y + 2, 1, 4);
+            drawInnerLine(m_Position.x, m_Position.y + 3, 2, 4);
+            drawInnerLine(m_Position.x, m_Position.y + 4, 3, 4);
+            drawInnerLine(m_Position.x, m_Position.y + 5, 4, 4);
+            drawInnerLine(m_Position.x, m_Position.y + 6, 3, 4);
+            drawInnerLine(m_Position.x, m_Position.y + 7, 2, 4);
+            drawInnerLine(m_Position.x, m_Position.y + 8, 1, 4);
+            drawInnerLine(m_Position.x, m_Position.y + 9, 0, 4);
+            drawOuterLine(m_Position.x, m_Position.y + 10, 41);
             break;
         default:
             break;
@@ -84,22 +94,38 @@ public:
         m_Position.y += ya;
     }
 
+    void SetSize(const Size size)
+    {
+        m_Size = size;
+    }
+
+    void SetCharacter(const char character)
+    {
+        m_Character = character;
+    }
+
 private:
     Size m_Size = Size::Medium;
     Vec2 m_Position;
+    char m_Character;
+
+    void drawOuterLine(int x, int y, int length)
+    {
+        std::string line(length, m_Character);
+        mvprintw(y, x, line.c_str());
+    }
+
+    void drawInnerLine(int x, int y, int depth, int length)
+    {
+        std::string space(length * depth, ' ');
+        mvprintw(y, x, space.c_str());
+        drawOuterLine(x + space.length(), y, length);
+    }
 };
 
 class Application
 {
 public:
-    Application() {
-        Initialize();
-    }
-
-    ~Application() {
-        Clean();
-    }
-
     void Initialize()
     {
         initscr();
@@ -116,6 +142,10 @@ public:
 
     void Run()
     {
+        readSettings();
+
+        Initialize();
+
         while (true)
         {
             clear();
@@ -152,10 +182,32 @@ public:
                 break;
             }
         }
+
+        Clean();
     }
 
 private:
     Shape m_Shape;
+
+    void readSettings()
+    {
+        using std::cout, std::cin, std::string;
+
+        struct Input
+        {
+            char character; 
+            string size;
+        } input;
+
+        cout << "Character: ";
+        cin >> input.character;
+
+        cout << "Size (small, medium, large): ";
+        cin >> input.size;
+
+        m_Shape.SetCharacter(input.character);
+        m_Shape.SetSize(Shape::SizeFromString(input.size));
+    }
 };
 
 int main()
