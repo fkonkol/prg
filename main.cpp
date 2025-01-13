@@ -41,17 +41,23 @@ public:
         switch (m_Size)
         {
         case Size::Small:
-            printw("Small");
+            mvprintw(m_Position.y, m_Position.x, "Small");
             break;
         case Size::Medium:
-            printw("Medium");
+            mvprintw(m_Position.y, m_Position.x, "Medium");
             break;
         case Size::Large:
-            printw("Large");
+            mvprintw(m_Position.y, m_Position.x, "Large");
             break;
         default:
             break;
         }
+    }
+
+    void Move(const int xa, const int ya)
+    {
+        m_Position.x += xa;
+        m_Position.y += ya;
     }
 
 private:
@@ -100,6 +106,18 @@ public:
 
             switch (key)
             {
+            case KEY_UP:
+                m_Shape.Move(0, -1);
+                break;
+            case KEY_DOWN:
+                m_Shape.Move(0, 1);
+                break;
+            case KEY_LEFT:
+                m_Shape.Move(-1, 0);
+                break;
+            case KEY_RIGHT:
+                m_Shape.Move(1, 0);
+                break;
             case '+':
                 m_Shape.ScaleUp();
                 break;
