@@ -32,7 +32,7 @@ public:
 
     void ScaleUp()
     {
-        if (m_Size < Shape::Size::Large)
+        if (m_Size < Size::Large)
         {
             m_Size = static_cast<Size>(static_cast<int>(m_Size) + 1);
         }
@@ -40,9 +40,39 @@ public:
 
     void ScaleDown()
     {
-        if (m_Size > Shape::Size::Small)
+        if (m_Size > Size::Small)
         {
             m_Size = static_cast<Size>(static_cast<int>(m_Size) - 1);
+        }
+    }
+
+    int GetWidth()
+    {
+        switch (m_Size)
+        {
+        case Size::Small:
+            return 18;
+        case Size::Medium:
+            return 27;
+        case Size::Large:
+            return 41;
+        default:
+            return -1;
+        }
+    }
+
+    int GetHeight()
+    {
+        switch (m_Size)
+        {
+        case Size::Small:
+            return 7;
+        case Size::Medium:
+            return 9;
+        case Size::Large:
+            return 11;
+        default:
+            return -1;
         }
     }
 
@@ -104,6 +134,11 @@ public:
         m_Character = character;
     }
 
+    Vec2 GetPosition()
+    {
+        return m_Position;
+    }
+
 private:
     Size m_Size = Size::Medium;
     Vec2 m_Position;
@@ -161,16 +196,28 @@ public:
             switch (key)
             {
             case KEY_UP:
-                m_Shape.Move(0, -1);
+                if (m_Shape.GetPosition().y > 0)
+                {
+                    m_Shape.Move(0, -1);
+                }
                 break;
             case KEY_DOWN:
-                m_Shape.Move(0, 1);
+                if (m_Shape.GetPosition().y < GetWindowBounds().y - m_Shape.GetHeight())
+                {
+                    m_Shape.Move(0, 1);
+                }
                 break;
             case KEY_LEFT:
-                m_Shape.Move(-1, 0);
+                if (m_Shape.GetPosition().x > 0)
+                {
+                    m_Shape.Move(-1, 0);
+                }
                 break;
             case KEY_RIGHT:
-                m_Shape.Move(1, 0);
+                if (m_Shape.GetPosition().x < GetWindowBounds().x - m_Shape.GetWidth())
+                {
+                    m_Shape.Move(1, 0);
+                }
                 break;
             case '+':
                 m_Shape.ScaleUp();
@@ -207,6 +254,13 @@ private:
 
         m_Shape.SetCharacter(input.character);
         m_Shape.SetSize(Shape::SizeFromString(input.size));
+    }
+
+    Vec2 GetWindowBounds()
+    {
+        Vec2 bounds;
+        getmaxyx(stdscr, bounds.y, bounds.x);
+        return bounds;
     }
 };
 
