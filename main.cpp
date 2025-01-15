@@ -30,11 +30,6 @@ public:
         throw std::invalid_argument("Invalid size: " + size);
     }
 
-    Size GetSize()
-    {
-        return m_Size;
-    }
-
     void ScaleUp()
     {
         Size newSize = static_cast<Size>(static_cast<int>(m_Size) + 1);
@@ -185,17 +180,13 @@ public:
 
         Initialize();
 
-        while (true)
+        while (m_IsRunning)
         {
             clear();
             m_Shape.Draw();
             refresh();
 
             int key = getch();
-
-            if (key == 'q') {
-                break;
-            }
 
             switch (key)
             {
@@ -229,6 +220,9 @@ public:
             case '-':
                 m_Shape.ScaleDown();
                 break;
+            case 'q':
+                m_IsRunning = false;
+                break;
             default:
                 break;
             }
@@ -239,6 +233,7 @@ public:
 
 private:
     Shape m_Shape;
+    bool m_IsRunning = true;
 
     void readSettings()
     {
