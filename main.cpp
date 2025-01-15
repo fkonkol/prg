@@ -14,19 +14,6 @@ struct Vec2
     Vec2(int x, int y) : x(x), y(y) {}
 };
 
-namespace Helpers
-{
-    namespace Window
-    {
-        Vec2 GetWindowBounds()
-        {
-            Vec2 bounds;
-            getmaxyx(stdscr, bounds.y, bounds.x);
-            return bounds;
-        }
-    };
-};
-
 class Shape
 {
 public:
