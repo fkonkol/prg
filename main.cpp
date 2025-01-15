@@ -2,6 +2,9 @@
 #include <iostream>
 #include <map>
 #include <stdexcept>
+#include <cctype>
+#include <string>
+#include <algorithm>
 
 struct Vec2
 {
@@ -9,6 +12,19 @@ struct Vec2
 
     Vec2() : x(0), y(0) {}
     Vec2(int x, int y) : x(x), y(y) {}
+};
+
+namespace Helpers
+{
+    namespace Window
+    {
+        Vec2 GetWindowBounds()
+        {
+            Vec2 bounds;
+            getmaxyx(stdscr, bounds.y, bounds.x);
+            return bounds;
+        }
+    };
 };
 
 class Shape
@@ -252,6 +268,11 @@ private:
 
         cout << "Size (small, medium, large): ";
         cin >> input.size;
+
+        for (char& c : input.size)
+        {
+            c = tolower(c);
+        }
 
         m_Shape.SetCharacter(input.character);
         m_Shape.SetSize(Shape::SizeFromString(input.size));
