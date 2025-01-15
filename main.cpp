@@ -275,6 +275,10 @@ private:
 
 int main()
 {
-    Application application;
-    application.Run();
+    try {
+        Application application;
+        application.Run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
 }
